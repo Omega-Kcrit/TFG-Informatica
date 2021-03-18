@@ -41,7 +41,7 @@ public class Controlador : MonoBehaviour
     public void UssertoMain()
     {
 
-        userMenu.Exit();
+        userMenuObj.SetActive(false);
         mainMenu.SetActive(true);
     }
 

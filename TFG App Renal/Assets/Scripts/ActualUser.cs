@@ -6,7 +6,7 @@ public class ActualUser
 {
 
     //variables sobre datos personales
-    public string userName, correo, psw, fechaNacimiento;
+    public string userName, correo, psw, fechaNacimiento, cuidador;
     public bool paciente;
 
     //Variabes sobre datos medicos
@@ -35,8 +35,45 @@ public class ActualUser
         Altura = altura;
     }
 
+    public void setCorreo(string nCorreo)
+    {
+        this.correo = nCorreo;
+    }
 
+    public void setNombre(string nNombre)
+    {
+        this.userName = nNombre;
+    }
+    public void setCuidador(string nCuidador)
+    {
+        this.cuidador = nCuidador;
+    }
+    public void setPeso(string nPeso)
+    {
+        this.Peso = nPeso;
+    }
 
+    public void setAltura(string nAltura)
+    {
+        this.Altura = nAltura;
+    }
 
+    public void cambioEstado(int estadoNuevo)
+    {
+        this.dialisis = estadoNuevo;
+    }
+
+    public void cambioHiper(bool hiper)
+    {
+        this.Hipertension = hiper;
+    }
+    public void cambioDiabetes(bool Diabe)
+    {
+        this.Diabetes = Diabe;
+    }
+    public void cambioActividad(bool Activi)
+    {
+        this.Actividad = Activi;
+    }
 
 }

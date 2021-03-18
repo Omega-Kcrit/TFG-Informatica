@@ -9,6 +9,7 @@ public class MenuUsuario : MonoBehaviour
 
     [Header("Menus internos")]
     public GameObject toLogin;
+    public GameObject loggin;
     public GameObject alredyLog;
     public GameObject Registro;
     public GameObject register1;
@@ -18,9 +19,15 @@ public class MenuUsuario : MonoBehaviour
     //Logged
     [Space]
     [Header("UI LOGGED")]
-    public Text usuario, correo;
-    public Text Cuidador;
-    public Dropdown Estado;
+    public Text uiLogUsuarioA, uiLogCorreoA;
+    public Text uiLogCuidadorA;
+    public InputField uiLogCuidadorN, uiLogUsuarioN, uiLogCorreoN;
+    public Dropdown uiLogEstadoN;
+    public Text uiLogPesoPlace, uiLogAlturaPlace;
+    public InputField uiLogPesoN, uiLogAlturaN;
+    public Toggle uiLogHiper;
+    public Toggle uiLogDiabetes, uiLogActividadLog;
+
 
 
 
@@ -51,7 +58,7 @@ public class MenuUsuario : MonoBehaviour
     public Toggle uiFosforo;
     public Toggle uiActividad;
     public Dropdown Dialisis;
-    public InputField uiPeso, uiAltura;
+    public InputField uiPeso, uiAltura; 
     [Space]
 
     //variables sobre datos personales
@@ -65,15 +72,13 @@ public class MenuUsuario : MonoBehaviour
 
 
 
-
+    //Cambios de menu
     public void stard(bool logged)
     {
         if (logged)
         {
             alredyLog.SetActive(true);
-            userName = controlador.aUser.userName;
-
-
+            this.setCuenta();
         }
         else
         {
@@ -92,11 +97,72 @@ public class MenuUsuario : MonoBehaviour
         this.toLogin.SetActive(true);
     }
 
+
+    //Cuenta ya iniciada
+    public void cambioUsuario()
+    {
+        //falta implementacion firebase
+        controlador.aUser.setNombre(this.uiLogUsuarioN.text);
+    }
+    public void cambioCorreo()
+    {
+        //falta implementacion de firebase
+        controlador.aUser.setCorreo(this.uiLogCorreoN.text);
+
+    }
+    public void cambioPeso()
+    {
+        //falta implementacion de firebase
+        controlador.aUser.setPeso(this.uiLogPesoN.text);
+
+    }
+    public void cambioAltura()
+    {
+        //falta implementacion de firebase
+        controlador.aUser.setAltura(this.uiLogAlturaN.text);
+
+    }
+    public void cambioCuidador()
+    {
+        //falta implementacion de firebase
+        controlador.aUser.setCuidador(this.uiLogCuidadorN.text);
+
+    }
+    public void cambioEstado()
+    {
+        controlador.aUser.cambioEstado(this.uiLogEstadoN.value);
+    }
+    public void cambioHiper()
+    {
+        controlador.aUser.cambioHiper(this.uiLogHiper.isOn);
+    }
+    public void cambioDiabetes()
+    {
+        controlador.aUser.cambioDiabetes(this.uiLogDiabetes.isOn);
+    }
+    public void cambioActividad()
+    {
+        controlador.aUser.cambioActividad(this.uiLogActividadLog.isOn);
+    }
+
+    public void setCuenta()
+    { 
+
+        this.uiLogUsuarioA.text = controlador.aUser.userName;
+        this.uiLogCorreoA.text = controlador.aUser.correo;
+        if (controlador.aUser.paciente) this.uiLogCuidadorA.text = controlador.aUser.cuidador;
+        this.uiLogPesoPlace.text = controlador.aUser.Peso;
+        this.uiLogAlturaPlace.text = controlador.aUser.Altura;
+        this.uiLogHiper.isOn = controlador.aUser.Hipertension;
+
+    }
+
     //Iniciar Sesion
     public void Loggin()
     {
 
         controlador.InicioSesion(uiCorreoInicio.text, uiPswInicio.text);
+        this.setCuenta();
 
     }
 
@@ -105,7 +171,8 @@ public class MenuUsuario : MonoBehaviour
     public void NowRegister()
     {
 
-        this.toLogin.SetActive(false);
+        this.loggin.SetActive(false);
+        this.Registro.SetActive(true);
         this.register1.SetActive(true);
 
 
@@ -139,7 +206,10 @@ public class MenuUsuario : MonoBehaviour
         controlador.aUser = new ActualUser(userName, correo, psw, fechaNacimiento, paciente, Hipertension, 
                                  Diabetes, Potasion, Sodio, Fosforo, Actividad, Peso, Altura, estadoDialisis);
 
-
+        this.Registro.SetActive(false);
+        this.register2.SetActive(false);
+        this.setCuenta();
+        alredyLog.SetActive(true);
 
     }
 

@@ -24,4 +24,9 @@ public class MenuPrincipal : MonoBehaviour
     {
         controlador.MainToUser();
     }
+
+    public void changetoAlimentos()
+    {
+        controlador.MenuToAlimento();
+    }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Controlador : MonoBehaviour
 {
 
-    public GameObject mainMenu, userMenuObj;
+    public GameObject mainMenu, userMenuObj,Alimentos;
     public MenuUsuario userMenu;
 
     public ActualUser aUser;
@@ -45,5 +45,12 @@ public class Controlador : MonoBehaviour
         mainMenu.SetActive(true);
     }
 
-    
+    public void MenuToAlimento()
+    {
+
+        mainMenu.SetActive(false);
+        Alimentos.SetActive(true);
+    }
+
+
 }

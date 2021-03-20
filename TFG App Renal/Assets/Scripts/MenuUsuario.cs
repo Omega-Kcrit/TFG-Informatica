@@ -157,11 +157,21 @@ public class MenuUsuario : MonoBehaviour
 
     }
 
+    public void cerrarSesion()
+    {
+        controlador.aUser = null;
+        alredyLog.SetActive(false);
+        toLogin.SetActive(true);
+    }
+
+
     //Iniciar Sesion
     public void Loggin()
     {
 
         controlador.InicioSesion(uiCorreoInicio.text, uiPswInicio.text);
+        alredyLog.SetActive(true);
+        toLogin.SetActive(false);
         this.setCuenta();
 
     }

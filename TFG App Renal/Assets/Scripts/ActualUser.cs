@@ -15,6 +15,8 @@ public class ActualUser
     int dialisis;
 
 
+
+
     public ActualUser(string userName, string correo, string psw, string fechaNacimiento,
         bool paciente, bool hipertension, bool diabetes, bool potasion, bool sodio, bool fosforo,
         bool actividad, string peso, string altura, int dialisis)

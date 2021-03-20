@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\ActualUser.cs" />
     <Compile Include="Assets\Scripts\Controlador.cs" />
+    <Compile Include="Assets\Scripts\MenuAlimentos.cs" />
     <Compile Include="Assets\Scripts\MenuPrincipal.cs" />
     <Compile Include="Assets\Scripts\MenuUsuario.cs" />
     <Reference Include="UnityEngine">

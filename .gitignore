@@ -83,3 +83,5 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+TFG App Renal/.vs/TFG App Renal/v16/.suo
+TFG App Renal/Assets/Firebase/Plugins/x86_64/FirebaseCppApp-7_1_0.so

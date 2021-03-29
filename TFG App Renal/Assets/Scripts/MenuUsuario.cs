@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class MenuUsuario : MonoBehaviour
 {
     public Controlador controlador;
+    public FireBaseAuth auth;
 
     [Header("Menus internos")]
     public GameObject toLogin;
@@ -37,8 +39,8 @@ public class MenuUsuario : MonoBehaviour
     //Loggin
     [Space]
     [Header("UI Loggin")]
-    public InputField uiCorreoInicio;
-    public InputField uiPswInicio;
+    public TMP_InputField uiCorreoInicio;
+    public TMP_InputField uiPswInicio;
 
 
     // REGISTRO
@@ -46,7 +48,7 @@ public class MenuUsuario : MonoBehaviour
     [Header("UI Datos Personales")]
     //UI datos personales
     public GameObject uiPaciente;
-    public InputField uiNombre, uiCorreo, uiPasword, uiDia, uiMes, uiAno;
+    public InputField uiNombre, uiCorreo, uiPasword, uiPasswordVerif, uiDia, uiMes, uiAno;
 
     [Space]
     [Header("UI Datos Medicos")]
@@ -62,7 +64,7 @@ public class MenuUsuario : MonoBehaviour
     [Space]
 
     //variables sobre datos personales
-    string userName, correo, psw, dia,mes,año, fechaNacimiento;
+    string userName, correo, psw,pswV, dia,mes,año, fechaNacimiento;
     bool paciente;
 
     //Variabes sobre datos medicos
@@ -169,13 +171,14 @@ public class MenuUsuario : MonoBehaviour
     public void Loggin()
     {
 
-        controlador.InicioSesion(uiCorreoInicio.text, uiPswInicio.text);
+        
         alredyLog.SetActive(true);
         toLogin.SetActive(false);
-        this.setCuenta();
+        //this.setCuenta(); //falta impementacion dataBase
 
     }
 
+    
 
     //Registro
     public void NowRegister()
@@ -184,6 +187,7 @@ public class MenuUsuario : MonoBehaviour
         this.loggin.SetActive(false);
         this.Registro.SetActive(true);
         this.register1.SetActive(true);
+        this.register2.SetActive(false);
 
 
     }
@@ -193,6 +197,7 @@ public class MenuUsuario : MonoBehaviour
         userName=uiNombre.text;
         correo = uiCorreo.text;
         psw = uiPasword.text;
+        pswV = uiPasswordVerif.text;
         dia = uiDia.text;
         mes = uiMes.text;
         año = uiAno.text;
@@ -202,9 +207,21 @@ public class MenuUsuario : MonoBehaviour
     }
     public void Register()
     {
+
+        auth.usernameRegisterField = this.userName;
+        auth.emailRegisterField = this.correo;
+        auth.passwordRegisterField = this.psw;
+        auth.passwordRegisterVerifyField = this.pswV;
+        auth.RegisterButton();
+
+        
+
+    }
+
+    public void RegisterDone()
+    {
         this.Peso = uiPeso.text;
         this.Altura = uiAltura.text;
-    
         this.Hipertension = uiHiper.isOn;
         this.Sodio = uiSodiodo.isOn;
         this.Fosforo = uiFosforo.isOn;
@@ -213,14 +230,14 @@ public class MenuUsuario : MonoBehaviour
         this.Actividad = uiActividad.isOn;
         this.estadoDialisis = this.Dialisis.value;
 
-        controlador.aUser = new ActualUser(userName, correo, psw, fechaNacimiento, paciente, Hipertension, 
+        controlador.aUser = new ActualUser(userName, correo, psw, fechaNacimiento, paciente, Hipertension,
                                  Diabetes, Potasion, Sodio, Fosforo, Actividad, Peso, Altura, estadoDialisis);
-
         this.Registro.SetActive(false);
         this.register2.SetActive(false);
         this.setCuenta();
         alredyLog.SetActive(true);
 
+        controlador.MostrarUsuario();
     }
 
 

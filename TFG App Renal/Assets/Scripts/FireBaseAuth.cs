@@ -21,12 +21,15 @@ public class FireBaseAuth : MonoBehaviour
     public TMP_Text confirmLoginText;
 
     //Register variables
-    [Header("Register")]
-    public TMP_InputField usernameRegisterField;
-    public TMP_InputField emailRegisterField;
-    public TMP_InputField passwordRegisterField;
-    public TMP_InputField passwordRegisterVerifyField;
+     [Header("Register")]
+     /*public TMP_InputField usernameRegisterField;
+     public TMP_InputField emailRegisterField;
+     public TMP_InputField passwordRegisterField;
+     public TMP_InputField passwordRegisterVerifyField;*/
+    public string usernameRegisterField, emailRegisterField, passwordRegisterField, passwordRegisterVerifyField;
     public TMP_Text warningRegisterText;
+    public MenuUsuario menuUser;
+
 
     void Awake()
     {
@@ -84,7 +87,7 @@ public class FireBaseAuth : MonoBehaviour
     public void RegisterButton()
     {
         //Call the register coroutine passing the email, password, and username
-        StartCoroutine(Register(emailRegisterField.text, passwordRegisterField.text, usernameRegisterField.text));
+        StartCoroutine(Register(emailRegisterField, passwordRegisterField, usernameRegisterField));
     }
 
 
@@ -129,6 +132,7 @@ public class FireBaseAuth : MonoBehaviour
             //Now get the result
             User = LoginTask.Result;
             Debug.LogFormat("User signed in successfully: {0} ({1})", User.DisplayName, User.Email);
+            menuUser.Loggin();
             warningLoginText.text = "";
             confirmLoginText.text = "Logged In";
         }
@@ -141,7 +145,7 @@ public class FireBaseAuth : MonoBehaviour
             //If the username field is blank show a warning
             warningRegisterText.text = "Missing Username";
         }
-        else if (passwordRegisterField.text != passwordRegisterVerifyField.text)
+        else if (passwordRegisterField != passwordRegisterVerifyField)
         {
             //If the password does not match show a warning
             warningRegisterText.text = "Password Does Not Match!";
@@ -177,6 +181,7 @@ public class FireBaseAuth : MonoBehaviour
                         break;
                 }
                 warningRegisterText.text = message;
+                menuUser.NowRegister();
             }
             else
             {
@@ -201,12 +206,13 @@ public class FireBaseAuth : MonoBehaviour
                         FirebaseException firebaseEx = ProfileTask.Exception.GetBaseException() as FirebaseException;
                         AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
                         warningRegisterText.text = "Username Set Failed!";
+                        menuUser.NowRegister();
                     }
                     else
                     {
                         //Username is now set
                         //Now return to login screen
-                        //UIManager.instance.LoginScreen();
+                        menuUser.RegisterDone();
                         warningRegisterText.text = "";
                     }
                 }

@@ -9,20 +9,7 @@ public class Controlador : MonoBehaviour
     public MenuUsuario userMenu;
 
     public ActualUser aUser;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-        //FiraBase verifica si hay usuario y coloca el usuario ya
 
-
-    }
-
-    //INICIO SESION FIREBASE;
-    public void InicioSesion(string correo, string psw)
-    {
-        //FIREBASE TODO
-    }
 
 
     //CAMBIO DE MENUS
@@ -52,5 +39,15 @@ public class Controlador : MonoBehaviour
         Alimentos.SetActive(true);
     }
 
+    public void AlimentoToMain()
+    {
+        mainMenu.SetActive(true);
+        Alimentos.SetActive(false);
+    }
+
+    public void MostrarUsuario()
+    {
+        Debug.Log("IMC: "+aUser.IMC);
+    }
 
 }

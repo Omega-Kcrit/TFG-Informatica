@@ -6,38 +6,33 @@ public class ActualUser
 {
 
     //variables sobre datos personales
-    public string userName, correo, psw, fechaNacimiento, cuidador;
+    public string userName,correo, fechaNacimiento, cuidador;
     public bool paciente;
 
     //Variabes sobre datos medicos
-    public bool Hipertension, Diabetes, Potasion, Sodio, Fosforo, Actividad;
+    public bool Hipertension, Diabetes, Actividad;
     public string Peso, Altura,Perfil;
-    public int dialisis;
+    public int dialisis, puntuacion,estadoInc;
     public float IMC;
 
 
 
-    public ActualUser(string userName, string correo, string psw, string fechaNacimiento,
-        bool paciente, bool hipertension, bool diabetes, bool potasion, bool sodio, bool fosforo,
-        bool actividad, string peso, string altura, int dialisis)
+    public ActualUser(string userName,string correo, string fechaNacimiento,
+        bool hipertension, bool diabetes, bool actividad, string peso,
+        string altura, int dialisis)
     {
         this.userName = userName;
-        this.correo = correo;
-        this.psw = psw;
         this.fechaNacimiento = fechaNacimiento;
-        this.paciente = paciente;
         this.dialisis = dialisis;
+        this.correo = correo;
         Hipertension = hipertension;
         Diabetes = diabetes;
-        Potasion = potasion;
-        Sodio = sodio;
-        Fosforo = fosforo;
         Actividad = actividad;
         Peso = peso;
         Altura = altura;
 
         this.IMC = float.Parse(peso) / Mathf.Pow(float.Parse(altura)/100, 2);
-
+        this.puntuacion = 0;
         this.TipoPerfil();
     }
 
@@ -214,44 +209,63 @@ public class ActualUser
         }
     }
 
-
-    public void setCorreo(string nCorreo)
-    {
-        this.correo = nCorreo;
-    }
     public void setNombre(string nNombre)
     {
         this.userName = nNombre;
     }
+
     public void setCuidador(string nCuidador)
     {
         this.cuidador = nCuidador;
     }
+
     public void setPeso(string nPeso)
     {
         this.Peso = nPeso;
     }
+
     public void setAltura(string nAltura)
     {
         this.Altura = nAltura;
     }
+
+    public void setCorreo(string Activi)
+    {
+        this.correo = Activi;
+    }
+
     public void cambioEstado(int estadoNuevo)
     {
         this.dialisis = estadoNuevo;
     }
+
     public void cambioHiper(bool hiper)
     {
         this.Hipertension = hiper;
     }
+
     public void cambioDiabetes(bool Diabe)
     {
         this.Diabetes = Diabe;
     }
+
     public void cambioActividad(bool Activi)
     {
         this.Actividad = Activi;
     }
-
+    
+    override
+    public string ToString()
+    {
+        Debug.Log("Nombre: "+this.userName);
+        Debug.Log("Altura: "+this.Altura);
+        Debug.Log("Peso: "+this.Peso);
+        Debug.Log("Diabetes: "+this.Diabetes);
+        Debug.Log("Dialisis: "+this.dialisis);
+        Debug.Log("Hiperten: "+this.Hipertension);
+        Debug.Log("Actvdad: "+this.Actividad);
+        return "";
+    }
 
 
 }

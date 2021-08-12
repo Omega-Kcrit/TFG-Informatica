@@ -9,7 +9,11 @@ public class Controlador : MonoBehaviour
     public MenuUsuario userMenu;
 
     public ActualUser aUser;
+    void Start()
+    {
+        
 
+    }
 
 
     //CAMBIO DE MENUS

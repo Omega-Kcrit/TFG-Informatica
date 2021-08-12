@@ -7,7 +7,7 @@ using TMPro;
 public class MenuUsuario : MonoBehaviour
 {
     public Controlador controlador;
-    public FireBaseAuth auth;
+    public FireBaseManager auth;
 
     [Header("Menus internos")]
     public GameObject toLogin;
@@ -16,25 +16,26 @@ public class MenuUsuario : MonoBehaviour
     public GameObject Registro;
     public GameObject register1;
     public GameObject register2;
+    public GameObject testInicial;
 
 
     //Logged
     [Space]
     [Header("UI LOGGED")]
-    public Text uiLogUsuarioA, uiLogCorreoA;
+    public Text uiLogUsuarioA;
+    public Text uiLogCorreoA;
     public Text uiLogCuidadorA;
-    public InputField uiLogCuidadorN, uiLogUsuarioN, uiLogCorreoN;
+    public InputField uiLogCuidadorN;
+    public InputField uiLogUsuarioN;
+    public InputField uiLogCorreoN;
     public Dropdown uiLogEstadoN;
     public Text uiLogPesoPlace, uiLogAlturaPlace;
-    public InputField uiLogPesoN, uiLogAlturaN;
+    public InputField uiLogPesoN;
+    public InputField uiLogAlturaN;
     public Toggle uiLogHiper;
-    public Toggle uiLogDiabetes, uiLogActividadLog;
-
-
-
-
-
-
+    public Toggle uiLogDiabetes;
+    public Toggle uiLogActividadLog;
+    public TextMeshProUGUI punt;
 
     //Loggin
     [Space]
@@ -47,7 +48,6 @@ public class MenuUsuario : MonoBehaviour
     [Space]
     [Header("UI Datos Personales")]
     //UI datos personales
-    public GameObject uiPaciente;
     public InputField uiNombre, uiCorreo, uiPasword, uiPasswordVerif, uiDia, uiMes, uiAno;
 
     [Space]
@@ -55,20 +55,17 @@ public class MenuUsuario : MonoBehaviour
     //UI Datos Medicos
     public Toggle uiHiper;
     public Toggle uiDiabetes;
-    public Toggle uiPot;
-    public Toggle uiSodiodo;
-    public Toggle uiFosforo;
     public Toggle uiActividad;
     public Dropdown Dialisis;
-    public InputField uiPeso, uiAltura; 
-    [Space]
+    public InputField uiPeso, uiAltura;
+    public TMP_Dropdown ui_EstadoInicial;
 
     //variables sobre datos personales
     string userName, correo, psw,pswV, dia,mes,año, fechaNacimiento;
     bool paciente;
 
     //Variabes sobre datos medicos
-    bool Hipertension, Diabetes, Potasion, Sodio, Fosforo, Actividad;
+    bool Hipertension, Diabetes, Actividad;
     string Peso, Altura;
     int estadoDialisis;
 
@@ -103,8 +100,8 @@ public class MenuUsuario : MonoBehaviour
     //Cuenta ya iniciada
     public void cambioUsuario()
     {
-        //falta implementacion firebase
-        controlador.aUser.setNombre(this.uiLogUsuarioN.text);
+        
+        this.auth.cambioUsuario(this.uiLogUsuarioN.text);
     }
     public void cambioCorreo()
     {
@@ -115,55 +112,63 @@ public class MenuUsuario : MonoBehaviour
     public void cambioPeso()
     {
         //falta implementacion de firebase
+        this.auth.cambioPeso(this.uiLogPesoN.text);
         controlador.aUser.setPeso(this.uiLogPesoN.text);
 
     }
     public void cambioAltura()
     {
         //falta implementacion de firebase
+        this.auth.cambioAltura(this.uiLogAlturaN.text);
         controlador.aUser.setAltura(this.uiLogAlturaN.text);
 
     }
-    public void cambioCuidador()
-    {
-        //falta implementacion de firebase
-        controlador.aUser.setCuidador(this.uiLogCuidadorN.text);
-
-    }
+  
     public void cambioEstado()
     {
+        this.auth.cambioEstado(this.uiLogEstadoN.value);
         controlador.aUser.cambioEstado(this.uiLogEstadoN.value);
     }
     public void cambioHiper()
     {
+        this.auth.cambioHiper(this.uiLogHiper.isOn);
         controlador.aUser.cambioHiper(this.uiLogHiper.isOn);
     }
     public void cambioDiabetes()
     {
+        this.auth.cambioDiabetes(this.uiLogDiabetes.isOn);
         controlador.aUser.cambioDiabetes(this.uiLogDiabetes.isOn);
     }
     public void cambioActividad()
     {
+        this.auth.cambioActividad(this.uiLogActividadLog.isOn);
         controlador.aUser.cambioActividad(this.uiLogActividadLog.isOn);
     }
+
 
     public void setCuenta()
     { 
 
         this.uiLogUsuarioA.text = controlador.aUser.userName;
         this.uiLogCorreoA.text = controlador.aUser.correo;
-        if (controlador.aUser.paciente) this.uiLogCuidadorA.text = controlador.aUser.cuidador;
+        this.uiLogCuidadorA.text = controlador.aUser.cuidador;
         this.uiLogPesoPlace.text = controlador.aUser.Peso;
+        this.uiLogEstadoN.value = controlador.aUser.dialisis;
         this.uiLogAlturaPlace.text = controlador.aUser.Altura;
         this.uiLogHiper.isOn = controlador.aUser.Hipertension;
+        this.uiLogActividadLog.isOn = controlador.aUser.Actividad;
+        this.uiLogDiabetes.isOn = controlador.aUser.Diabetes;
+        this.punt.text = controlador.aUser.puntuacion.ToString();
+
 
     }
 
     public void cerrarSesion()
     {
-        controlador.aUser = null;
+        this.auth.LogOut();
         alredyLog.SetActive(false);
         toLogin.SetActive(true);
+        controlador.UssertoMain();
     }
 
 
@@ -174,7 +179,7 @@ public class MenuUsuario : MonoBehaviour
         
         alredyLog.SetActive(true);
         toLogin.SetActive(false);
-        //this.setCuenta(); //falta impementacion dataBase
+        this.setCuenta(); //falta impementacion dataBase
 
     }
 
@@ -205,6 +210,18 @@ public class MenuUsuario : MonoBehaviour
         this.register1.SetActive(false);
         this.register2.SetActive(true);
     }
+
+    public void Next2Register()
+    {
+        this.Peso = uiPeso.text;
+        this.Altura = uiAltura.text;
+        this.Hipertension = uiHiper.isOn;
+        this.Diabetes = uiDiabetes.isOn;
+        this.Actividad = uiActividad.isOn;
+        this.estadoDialisis = this.Dialisis.value;
+        this.register2.SetActive(false);
+        this.testInicial.SetActive(true);
+    }
     public void Register()
     {
 
@@ -214,29 +231,30 @@ public class MenuUsuario : MonoBehaviour
         auth.passwordRegisterVerifyField = this.pswV;
         auth.RegisterButton();
 
-        
-
     }
 
     public void RegisterDone()
     {
-        this.Peso = uiPeso.text;
-        this.Altura = uiAltura.text;
-        this.Hipertension = uiHiper.isOn;
-        this.Sodio = uiSodiodo.isOn;
-        this.Fosforo = uiFosforo.isOn;
-        this.Diabetes = uiDiabetes.isOn;
-        this.Potasion = uiPot.isOn;
-        this.Actividad = uiActividad.isOn;
-        this.estadoDialisis = this.Dialisis.value;
-
-        controlador.aUser = new ActualUser(userName, correo, psw, fechaNacimiento, paciente, Hipertension,
-                                 Diabetes, Potasion, Sodio, Fosforo, Actividad, Peso, Altura, estadoDialisis);
+        
+        controlador.aUser = new ActualUser(userName, correo, fechaNacimiento, Hipertension,
+                                 Diabetes, Actividad, Peso, Altura, estadoDialisis);
+        int e=this.ui_EstadoInicial.value;
+        switch (e)
+        {
+            case 0: e = 0; break;
+            case 1: e = 2; break;
+            case 2: e = 4; break;
+            case 3: e = 6; break;
+            case 4: e = 8; break;
+            case 5: e = 10; break;
+        }
         this.Registro.SetActive(false);
-        this.register2.SetActive(false);
+        this.testInicial.SetActive(false);
         this.setCuenta();
         alredyLog.SetActive(true);
 
+        auth.RegisterDataButton(userName,correo, Peso,Altura,estadoDialisis,
+            Hipertension,Diabetes,Actividad,fechaNacimiento, e);
         controlador.MostrarUsuario();
     }
 

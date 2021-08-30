@@ -12,19 +12,21 @@ public class ActualUser
     //Variabes sobre datos medicos
     public bool Hipertension, Diabetes, Actividad;
     public string Peso, Altura,Perfil;
-    public int dialisis, puntuacion,estadoInc;
+    public int dialisis, puntuacion,estadoInc, lAct,lFav;
     public float IMC;
 
 
 
     public ActualUser(string userName,string correo, string fechaNacimiento,
         bool hipertension, bool diabetes, bool actividad, string peso,
-        string altura, int dialisis)
+        string altura, int dialisis, int lact, int lfav)
     {
         this.userName = userName;
         this.fechaNacimiento = fechaNacimiento;
         this.dialisis = dialisis;
         this.correo = correo;
+        this.lAct = lact;
+        this.lFav = lfav;
         Hipertension = hipertension;
         Diabetes = diabetes;
         Actividad = actividad;

@@ -14,41 +14,41 @@ public class MenuAlimentos : MonoBehaviour
     public GameObject MenuListas;
     public GameObject MenuFav;
     public GameObject MenuActual;
-    public TMP_Text warningListText; 
+    public GameObject AlimentoSeleccionadoListas;
+    public TMP_Text warningListText;
+    public bool act = false;
 
     [Header("Menus internos Alimentos")]
     public GameObject Alimentos;
     public GameObject MenuTiposAlimento;
     public GameObject AlimentoSeleccionado;
+    public TMP_Text warngA;
 
     [Header("Logica")]
     public Controlador controlador;
     public string[] AlimentosC;
-    /*public string[] AlimentosF;
-    public string[] AlimentosP;
-    public string[] AlimentosV;
-    public string[] AlimentosG;
-    public string[] AlimentosL;*/
     public string[] PerfilAC;
     public string[] PerfilAF;
     public string[] PerfilAP;
     public string[] PerfilAV;
     public string[] PerfilAG;
     public string[] PerfilAL;
-    public string[] PerfilAPe;
+    public string[] PerfilAPe;  
+    public string[] ListaAct;  
+    public string[] ListaFav;  
+
 
 
 
     [Header("Prefabs")]
     public GameObject PrefabBotonAlimento;
     public GameObject botonColocacionA;
+    public GameObject botonColocacionAL;
 
     [Header("Almacenes de datos Alimentos")]
-    public Text Texto;
+    public Text Texto,TextoLA,TextoLF;
     public string Categoria="";
     public Image ImagenTex;
-    public Image[] Imagenecarne;
-    public string[] textoCarne;
     public List<GameObject> Botones;
 
 
@@ -61,19 +61,19 @@ public class MenuAlimentos : MonoBehaviour
         Alimentos.SetActive(true);
         if (controlador.aUser != null)
         {
-            this.auth.loadPerfil(controlador.aUser.Perfil);
+            this.auth.LoadPerfil(controlador.aUser.Perfil);
             
         }
-        else this.auth.loadPerfil("C1");
+        else this.auth.LoadPerfil("C1");
     }
 
     public void MainToLista()
     {
         if (controlador.aUser != null)
         {
-            this.auth.loadPerfil(controlador.aUser.Perfil);
+            this.auth.LoadPerfil(controlador.aUser.Perfil);
             menuPrincipal.SetActive(false);
-            Alimentos.SetActive(true);
+            MenuListas.SetActive(true);
 
         }
         else this.warningListText.text = "Tienes que iniciar sesion";
@@ -82,14 +82,9 @@ public class MenuAlimentos : MonoBehaviour
 
     public void ListaToActual()
     {
-        if (controlador.aUser != null)
-        {
-            this.auth.loadPerfil(controlador.aUser.Perfil);
-            menuPrincipal.SetActive(false);
-            Alimentos.SetActive(true);
 
-        }
-        else this.warningListText.text = "Tienes que iniciar sesion";
+        this.MenuListas.SetActive(false);
+        auth.LoadListasAct();
 
     }
 
@@ -97,7 +92,7 @@ public class MenuAlimentos : MonoBehaviour
     {
         if (controlador.aUser != null)
         {
-            this.auth.loadPerfil(controlador.aUser.Perfil);
+            this.auth.LoadPerfil(controlador.aUser.Perfil);
             menuPrincipal.SetActive(false);
             Alimentos.SetActive(true);
 
@@ -111,7 +106,22 @@ public class MenuAlimentos : MonoBehaviour
         
         MenuFav.SetActive(false);
         MenuActual.SetActive(false);
+        foreach (GameObject B in Botones)
+        {
+            Destroy(B);
+        }
+        Botones.Clear();
         MenuListas.SetActive(true);
+    }
+    public void FavsActToSeleccion(Text nombre)
+    {
+        string[] p;
+        p = nombre.text.Split('.'); ;
+        int i;
+        i = int.Parse(p[0]); Debug.Log(i);
+        this.TextoLA.text = this.ListaAct[i-1];
+        MenuActual.SetActive(false);
+        AlimentoSeleccionadoListas.SetActive(true);
     }
 
     public void AlimentosToTipos(int i)
@@ -168,11 +178,11 @@ public class MenuAlimentos : MonoBehaviour
                 Rec = this.PerfilAC[i-1];
 
                 if (Rec.Equals("0"))
-                {this.Texto.text = "Este alimento es recomendable para su estado actual.";
+                {this.Texto.text = p[1] + "."+"\nEste alimento es recomendable para su estado actual.";
                 }else if (Rec.Equals("1"))
-                {this.Texto.text = "Se recomienda comer este alimento con moderacion y en cantidades controladas. ";
+                {this.Texto.text = p[1] + "." + "\nSe recomienda comer este alimento con moderacion y en cantidades controladas. ";
                 }else
-                {this.Texto.text = "Se recomienda evitar comer este alimento.";}
+                {this.Texto.text = p[1] + "." + "\nSe recomienda evitar comer este alimento."; }
 
                 break;
             case "Frutas":
@@ -183,14 +193,14 @@ public class MenuAlimentos : MonoBehaviour
 
                 if (Rec.Equals("0"))
                 {
-                    this.Texto.text = "Este alimento es recomendable para su estado actual.";
+                    this.Texto.text = p[1] + "." + "\nEste alimento es recomendable para su estado actual.";
                 }
                 else if (Rec.Equals("1"))
                 {
-                    this.Texto.text = "Se recomienda comer este alimento con moderacion y en cantidades controladas. ";
+                    this.Texto.text = p[1] + "." + "\nSe recomienda comer este alimento con moderacion y en cantidades controladas. ";
                 }
                 else
-                { this.Texto.text = "Se recomeinda evitar comer este alimento."; }
+                { this.Texto.text = p[1] + "." + "\nSe recomeinda evitar comer este alimento."; }
 
                 break;
             case "Grasas":
@@ -201,14 +211,14 @@ public class MenuAlimentos : MonoBehaviour
 
                 if (Rec.Equals("0"))
                 {
-                    this.Texto.text = "Este alimento es recomendable para su estado actual.";
+                    this.Texto.text = p[1] + "." + "\nEste alimento es recomendable para su estado actual.";
                 }
                 else if (Rec.Equals("1"))
                 {
-                    this.Texto.text = "Se recomienda comer este alimento con moderacion y en cantidades controladas. ";
+                    this.Texto.text = p[1] + "." + "\nSe recomienda comer este alimento con moderacion y en cantidades controladas. ";
                 }
                 else
-                { this.Texto.text = "Se recomeinda evitar comer este alimento."; }
+                { this.Texto.text = p[1] + "." + "\nSe recomeinda evitar comer este alimento."; }
 
                 break;
             case "LegumbresyVerduras":
@@ -219,14 +229,14 @@ public class MenuAlimentos : MonoBehaviour
 
                 if (Rec.Equals("0"))
                 {
-                    this.Texto.text = "Este alimento es recomendable para su estado actual.";
+                    this.Texto.text = p[1] + "." + "\nEste alimento es recomendable para su estado actual.";
                 }
                 else if (Rec.Equals("1"))
                 {
-                    this.Texto.text = "Se recomienda comer este alimento con moderacion y en cantidades controladas. ";
+                    this.Texto.text = p[1] + "." + "\nSe recomienda comer este alimento con moderacion y en cantidades controladas. ";
                 }
                 else
-                { this.Texto.text = "Se recomeinda evitar comer este alimento."; }
+                { this.Texto.text = p[1] + "." + "\nSe recomeinda evitar comer este alimento."; }
 
                 break;
             case "Lácteos":
@@ -237,14 +247,14 @@ public class MenuAlimentos : MonoBehaviour
 
                 if (Rec.Equals("0"))
                 {
-                    this.Texto.text = "Este alimento es recomendable para su estado actual.";
+                    this.Texto.text = p[1] + "." + "\nEste alimento es recomendable para su estado actual.";
                 }
                 else if (Rec.Equals("1"))
                 {
-                    this.Texto.text = "Se recomienda comer este alimento con moderacion y en cantidades controladas. ";
+                    this.Texto.text = p[1] + "." + "\nSe recomienda comer este alimento con moderacion y en cantidades controladas. ";
                 }
                 else
-                { this.Texto.text = "Se recomeinda evitar comer este alimento."; }
+                { this.Texto.text = p[1] + "." + "\nSe recomeinda evitar comer este alimento."; }
 
                 break;
             case "Pez":
@@ -256,14 +266,14 @@ public class MenuAlimentos : MonoBehaviour
 
                 if (Rec.Equals("0"))
                 {
-                    this.Texto.text = "Este alimento es recomendable para su estado actual.";
+                    this.Texto.text = p[1] + "." + "\nEste alimento es recomendable para su estado actual.";
                 }
                 else if (Rec.Equals("1"))
                 {
-                    this.Texto.text = "Se recomienda comer este alimento con moderacion y en cantidades controladas. ";
+                    this.Texto.text = p[1] + "." + "\nSe recomienda comer este alimento con moderacion y en cantidades controladas. ";
                 }
                 else
-                { this.Texto.text = "Se recomeinda evitar comer este alimento."; }
+                { this.Texto.text = p[1] + "." + "\nSe recomeinda evitar comer este alimento."; }
 
                 break;
             case "Pastelería":
@@ -274,20 +284,20 @@ public class MenuAlimentos : MonoBehaviour
 
                 if (Rec.Equals("0"))
                 {
-                    this.Texto.text = "Este alimento es recomendable para su estado actual.";
+                    this.Texto.text = p[1] + "." + "\nEste alimento es recomendable para su estado actual.";
                 }
                 else if (Rec.Equals("1"))
                 {
-                    this.Texto.text = "Se recomienda comer este alimento con moderacion y en cantidades controladas. ";
+                    this.Texto.text = p[1] + "." + "\nSe recomienda comer este alimento con moderacion y en cantidades controladas. ";
                 }
                 else
-                { this.Texto.text = "Se recomeinda evitar comer este alimento."; }
+                { this.Texto.text = p[1] + "." + "\nSe recomeinda evitar comer este alimento."; }
 
                 break;
         }
 
 
-
+        Debug.Log(this.Texto.text);
         AlimentoSeleccionado.SetActive(true);
     }
     public void SeleccionToTipos()
@@ -308,6 +318,33 @@ public class MenuAlimentos : MonoBehaviour
     public void AlimentosTOMain()
     {
         controlador.AlimentoToMain();
+    }
+    public void AlimentosTOAlmMain()
+    {
+        menuPrincipal.SetActive(true);
+        Alimentos.SetActive(false);
+    }
+
+    public void BotonFav()
+    {
+        if (this.controlador.aUser == null)
+        {
+            warngA.text = "Tienes que estar logeado";
+        }
+        else this.auth.AddListasF(this.Texto.text);
+    }
+    public void BotonAct()
+    {
+        if(this.controlador.aUser == null)
+        {
+            warngA.text = "Tienes que estar logeado";
+        } else this.auth.AddListasA(this.Texto.text);
+    }
+
+    public void AlmentosLista()
+    {
+        this.AlimentoSeleccionado.SetActive(false);
+
     }
 
 
@@ -332,20 +369,39 @@ public class MenuAlimentos : MonoBehaviour
         }
     }
 
-    public void PreparacionListas()
+    public void PreparacionListasAct()
     {
-        MenuTiposAlimento.SetActive(true);
-        int length = this.AlimentosC.Length;
+        MenuActual.SetActive(true);
+        int length = this.ListaAct.Length;
+        int p = 1;
+        for (int a = 0; a < length; a++)
+        {
+            GameObject myButton = Instantiate(PrefabBotonAlimento,
+                botonColocacionAL.transform.position, botonColocacionAL.transform.rotation) as GameObject;
+            myButton.transform.SetParent(botonColocacionAL.transform);
+            string[] sep = ListaAct[a].Split('.');
+            myButton.GetComponentInChildren<Text>().text = p + "." + sep[0];
+            myButton.GetComponent<Button>().onClick.AddListener(delegate ()
+            { FavsActToSeleccion(myButton.GetComponentInChildren<Text>()); });
+
+            Botones.Add(myButton);
+            p++;
+        }
+    }
+    public void PreparacionListasFav()
+    {
+        MenuFav.SetActive(true);
+        int length = this.ListaFav.Length;
         int p = 1;
         for (int a = 0; a < length; a++)
         {
             GameObject myButton = Instantiate(PrefabBotonAlimento,
                 botonColocacionA.transform.position, botonColocacionA.transform.rotation) as GameObject;
             myButton.transform.SetParent(botonColocacionA.transform);
-            string[] sep = AlimentosC[a].Split(',');
-            myButton.GetComponentInChildren<Text>().text = p + "." + sep[0];
+            string[] sep = ListaFav[a].Split('.');
+            myButton.GetComponentInChildren<Text>().text = p     + "." + sep[0];
             myButton.GetComponent<Button>().onClick.AddListener(delegate ()
-            { TiposToSeleccion(myButton.GetComponentInChildren<Text>()); });
+            { FavsActToSeleccion(myButton.GetComponentInChildren<Text>()); });
 
             Botones.Add(myButton);
             p++;

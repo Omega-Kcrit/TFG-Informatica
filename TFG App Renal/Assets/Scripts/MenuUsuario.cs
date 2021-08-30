@@ -69,9 +69,18 @@ public class MenuUsuario : MonoBehaviour
     string Peso, Altura;
     int estadoDialisis;
 
+    TouchScreenKeyboard keyboard;
 
 
     //Cambios de menu
+    public void OpenKeyboard() {
+        //keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default);
+    }
+    void Update()
+    {
+        
+    }
+
     public void stard(bool logged)
     {
         if (logged)
@@ -237,7 +246,7 @@ public class MenuUsuario : MonoBehaviour
     {
         
         controlador.aUser = new ActualUser(userName, correo, fechaNacimiento, Hipertension,
-                                 Diabetes, Actividad, Peso, Altura, estadoDialisis);
+                                 Diabetes, Actividad, Peso, Altura, estadoDialisis,0,0);
         int e=this.ui_EstadoInicial.value;
         switch (e)
         {

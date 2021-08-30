@@ -104,8 +104,11 @@ public class FireBaseManager : MonoBehaviour
     public void LoginButton()
     {
         //Call the login coroutine passing the email and password
+        //emailLoginField.text
+        //if(!(emailLoginField.text==""|| passwordLoginField.text == "")){ 
         StartCoroutine(Login(emailLoginField.text, passwordLoginField.text));
-        //StartCoroutine(LoadUserData());
+        StartCoroutine(LoadUserData());
+        
     }
     //Function for the register button
     public void RegisterButton()
@@ -272,8 +275,9 @@ public class FireBaseManager : MonoBehaviour
         StartCoroutine(ActualizarPuntuacionFDatabase(0));
         StartCoroutine(ActualizarCorreoDatabase(correo));
         StartCoroutine(ActualizarEstadoIDatabase(estadoInicial));
+        StartCoroutine(ActualizarlAct(0));
+        StartCoroutine(ActualizarlFav(0));
     }
-
 
 
     public void cambioUsuario(string username)
@@ -322,23 +326,33 @@ public class FireBaseManager : MonoBehaviour
         StartCoroutine(LoadFoodData(tipo));
     }
 
-    public void AddListasQ(string tipo)
+    public void AddListasA(string tipo)
     {
-        StartCoroutine(AddAlimentoFav(tipo));
+        Debug.Log("AÑDENDO ACT");
+        StartCoroutine(AddAlimentoAct(tipo));
+        this.CON.aUser.lAct++;
+        StartCoroutine(ActualizarlAct(this.CON.aUser.lAct));
+
     }
 
     public void AddListasF(string tipo)
     {
-        StartCoroutine(AddAlimentoAct(tipo));
+        StartCoroutine(AddAlimentoFav(tipo));
+        this.CON.aUser.lFav++;
+        StartCoroutine(ActualizarlFav(this.CON.aUser.lFav));
     }
 
-    public void loadListasF()
+    public void LoadListasFav()
     {
         StartCoroutine(LoadListasF());
     }
+    public void LoadListasAct()
+    {
+       
+        StartCoroutine(LoadListasA());
+    }
 
-
-    public void loadPerfil(string p)
+    public void LoadPerfil(string p)
     {
         StartCoroutine(LoadFoodPerfilesData(p));
     }
@@ -383,7 +397,8 @@ public class FireBaseManager : MonoBehaviour
             bool SActividad = (bool)snapshot.Child("ActividadFisica").Value;
             string SCorreo = snapshot.Child("correo").Value.ToString();
             string SPunt = snapshot.Child("Puntuacion").Value.ToString();
-            string Scuidador = snapshot.Child("cuidador").Value.ToString();
+            int lact = int.Parse( snapshot.Child("ListaA").Value.ToString());
+            int lfav = int.Parse(snapshot.Child("ListaF").Value.ToString());
 
             bool diabetes=false;
             int dialisis=0;
@@ -409,9 +424,9 @@ public class FireBaseManager : MonoBehaviour
                     break;
 
             }
-            CON.aUser = new ActualUser(username,SCorreo, fechaNac, Hipertension, diabetes, Actividad, Peso, Altura, dialisis);
+            CON.aUser = 
+                new ActualUser(username,SCorreo, fechaNac, Hipertension, diabetes, Actividad, Peso, Altura, dialisis,lact,lfav);
             CON.aUser.puntuacion = int.Parse(SPunt);
-            CON.aUser.cuidador = Scuidador;
             CON.aUser.ToString();
             menuUser.Loggin();
 
@@ -605,6 +620,90 @@ public class FireBaseManager : MonoBehaviour
         }
     }
 
+    private IEnumerator LoadListasF()
+    {
+        var DBTask1 = DBreference.Child("Listas").Child(User.UserId).Child("ListaF").GetValueAsync();
+        yield return new WaitUntil(predicate: () => DBTask1.IsCompleted);
+        if (DBTask1.Exception != null)
+        {
+            //If there are errors handle them
+            Debug.LogWarning(message: $"Failed to load task with {DBTask1.Exception}");
+
+            string message = "Login Failed!";
+
+            warningLoginText.text = message;
+        }
+        else if (DBTask1.Result.Value == null)
+        {
+            //NODATA
+            Debug.LogWarning(message: $"Failed find data");
+
+        }
+        else
+        {
+            DataSnapshot snapshot = DBTask1.Result;
+            long i = snapshot.ChildrenCount;
+
+            string[] ListAlimentosAC = new string[i];
+            int p = 1;
+            for (int s = 0; s < i; s++)
+            {
+                ListAlimentosAC[s] = snapshot.Child(p.ToString()).Value.ToString();
+                p++;
+            }
+            this.mA.ListaFav = ListAlimentosAC;
+            this.mA.PreparacionListasFav();
+        }
+
+        yield return new WaitUntil(predicate: () => DBTask1.IsCompleted);
+    }
+
+    private IEnumerator LoadListasA()
+    {
+        var DBTask = DBreference.Child("Listas").Child(User.UserId).Child("ListaA").GetValueAsync();
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+        if (DBTask.Exception != null)
+        {
+            //If there are errors handle them
+            Debug.LogWarning(message: $"Failed to load task with {DBTask.Exception}");
+
+            string message = "Login Failed!";
+            Debug.Log("FALLO DAABASE");
+            warningLoginText.text = message;
+        }
+        else if (DBTask.Result.Value == null)
+        {
+            //NODATA
+            Debug.LogWarning(message: $"Failed find data");
+            Debug.Log("NO EXISTE");
+            string message = "Login Failed!";
+            this.LogOut();
+            warningLoginText.text = message;
+
+        }
+        else
+        {
+            DataSnapshot snapshot = DBTask.Result;
+            long i = snapshot.ChildrenCount;
+
+            string[] ListAlimentosAC = new string[i];
+            int p = 0;
+            for (int s = 0; s < i; s++)
+            {
+                ListAlimentosAC[s] = snapshot.Child(p.ToString()).Value.ToString();
+                p++;
+            }
+            this.mA.ListaAct = ListAlimentosAC;
+            this.mA.PreparacionListasAct();
+        }
+
+        
+    }
+
+
+
+
+    //ACTUALizar DATOS
     private IEnumerator ActualizarUsernameDatabase( string _username)
     {
         var DBTask = DBreference.Child("users").Child(User.UserId).Child("username").SetValueAsync(_username);
@@ -781,33 +880,62 @@ public class FireBaseManager : MonoBehaviour
         }
     }
 
+    private IEnumerator ActualizarlAct(int _lact)
+    {
+        var DBTask = DBreference.Child("users").Child(User.UserId).Child("ListaA").SetValueAsync(_lact);
+
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
+        }
+        else
+        {
+            //Database username is now updated
+        }
+    }
+
+    private IEnumerator ActualizarlFav(int _lfav)
+    {
+        var DBTask = DBreference.Child("users").Child(User.UserId).Child("ListaF").SetValueAsync(_lfav);
+
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
+        }
+        else
+        {
+            //Database username is now updated
+        }
+    }
+
     private IEnumerator AddAlimentoFav(string Alimento)
     {
-        var DBTask1 = DBreference.Child("Listas").Child(User.UserId).Child("ListaFav").GetValueAsync();
-        int posA =0;
-        if (DBTask1.Exception != null)
-        {
-            //If there are errors handle them
-            Debug.LogWarning(message: $"Failed to load task with {DBTask1.Exception}");
-
-            string message = "Login Failed!";
-
-            warningLoginText.text = message;
-        }
-        else if (DBTask1.Result.Value == null)
-        {
-            //NODATA
-            Debug.LogWarning(message: $"Failed find data");
-
-        }
-        else
-        {
-            DataSnapshot snapshot = DBTask1.Result;
-            long i = snapshot.ChildrenCount;
-            posA = (int)i;
-        }
         
-        var DBTask = DBreference.Child("Listas").Child(User.UserId).Child("ListaFav").Child(posA.ToString()).SetValueAsync(Alimento);
+        
+        var DBTask = DBreference.Child("Listas").Child(User.UserId).Child("ListaFav")
+            .Child(this.CON.aUser.lFav.ToString()).SetValueAsync(Alimento);
+        
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
+        }
+        else
+        {
+            //Database is now updated
+        }
+    }
+
+    private IEnumerator AddAlimentoAct(string Alimento)
+    {
+
+        var DBTask = DBreference.Child("Listas").Child(User.UserId).Child("ListaA")
+            .Child(this.CON.aUser.lAct.ToString()).SetValueAsync(Alimento);
 
         yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
 
@@ -821,78 +949,11 @@ public class FireBaseManager : MonoBehaviour
         }
     }
 
-    private IEnumerator AddAlimentoAct(string _estadoI)
-    {
-        var DBTask1 = DBreference.Child("Listas").Child(User.UserId).Child("ListaA").GetValueAsync();
-        int posA = 0;
-        if (DBTask1.Exception != null)
-        {
-            //If there are errors handle them
-            Debug.LogWarning(message: $"Failed to load task with {DBTask1.Exception}");
 
-            string message = "Login Failed!";
+    // CARGAR DATOS
+   
 
-            warningLoginText.text = message;
-        }
-        else if (DBTask1.Result.Value == null)
-        {
-            //NODATA
-            Debug.LogWarning(message: $"Failed find data");
-
-        }
-        else
-        {
-            DataSnapshot snapshot = DBTask1.Result;
-            long i = snapshot.ChildrenCount;
-            posA = (int)i;
-        }
-
-        var DBTask = DBreference.Child("Listas").Child(User.UserId).Child("ListaA").Child(posA.ToString()).SetValueAsync(_estadoI);
-
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-
-        if (DBTask.Exception != null)
-        {
-            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
-        }
-        else
-        {
-            //Database is now updated
-        }
-    }
-
-    private IEnumerator LoadListasF()
-    {
-        var DBTask1 = DBreference.Child("Listas").Child(User.UserId).Child("ListaA").GetValueAsync();
-        int posA = 0;
-        if (DBTask1.Exception != null)
-        {
-            //If there are errors handle them
-            Debug.LogWarning(message: $"Failed to load task with {DBTask1.Exception}");
-
-            string message = "Login Failed!";
-
-            warningLoginText.text = message;
-        }
-        else if (DBTask1.Result.Value == null)
-        {
-            //NODATA
-            Debug.LogWarning(message: $"Failed find data");
-
-        }
-        else
-        {
-            DataSnapshot snapshot = DBTask1.Result;
-            long i = snapshot.ChildrenCount;
-            posA = (int)i;
-        }
-
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-    }
-
-
-
-        void OnDestroy()
+    void OnDestroy()
     {
         auth.StateChanged -= AuthStateChanged;
         auth = null;

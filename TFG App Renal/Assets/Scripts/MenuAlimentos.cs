@@ -11,12 +11,11 @@ public class MenuAlimentos : MonoBehaviour
     public FireBaseManager auth;
 
     [Header("Menus internos Listas")]    
-    public GameObject MenuListas;
-    public GameObject MenuFav;
     public GameObject MenuActual;
     public GameObject AlimentoSeleccionadoListas;
     public TMP_Text warningListText;
-    public bool act = false;
+    public bool actR = false;
+    public int selecc;
 
     [Header("Menus internos Alimentos")]
     public GameObject Alimentos;
@@ -65,65 +64,61 @@ public class MenuAlimentos : MonoBehaviour
             
         }
         else this.auth.LoadPerfil("C1");
+        this.warningListText.text = "";
     }
 
     public void MainToLista()
     {
         if (controlador.aUser != null)
         {
-            this.auth.LoadPerfil(controlador.aUser.Perfil);
             menuPrincipal.SetActive(false);
-            MenuListas.SetActive(true);
-
+            this.MenuActual.SetActive(false);
+            this.warningListText.text = "";
+            auth.LoadListasAct();
         }
         else this.warningListText.text = "Tienes que iniciar sesion";
 
     }
-
-    public void ListaToActual()
+  
+   public void ListatoMain()
     {
-
-        this.MenuListas.SetActive(false);
-        auth.LoadListasAct();
-
-    }
-
-    public void ListaToFavs()
-    {
-        if (controlador.aUser != null)
-        {
-            this.auth.LoadPerfil(controlador.aUser.Perfil);
-            menuPrincipal.SetActive(false);
-            Alimentos.SetActive(true);
-
-        }
-        else this.warningListText.text = "Tienes que iniciar sesion";
-
-    }
-
-    public void FavsActToListas()
-    {
-        
-        MenuFav.SetActive(false);
-        MenuActual.SetActive(false);
+        this.menuPrincipal.SetActive(true);
         foreach (GameObject B in Botones)
         {
             Destroy(B);
         }
         Botones.Clear();
-        MenuListas.SetActive(true);
+        this.MenuActual.SetActive(false);
+
+    }
+
+    public void AlimentoActL()
+    {
+        AlimentoSeleccionadoListas.SetActive(false);
+        MenuActual.SetActive(true);
+        if (actR)
+        {
+            foreach (GameObject B in Botones)
+            {
+                Destroy(B);
+            }
+            Botones.Clear();
+            auth.LoadListasAct();
+        }
+        this.actR = false;
     }
     public void FavsActToSeleccion(Text nombre)
     {
         string[] p;
-        p = nombre.text.Split('.'); ;
+        p = nombre.text.Split('.');
         int i;
         i = int.Parse(p[0]); Debug.Log(i);
         this.TextoLA.text = this.ListaAct[i-1];
+        this.selecc = i;
         MenuActual.SetActive(false);
         AlimentoSeleccionadoListas.SetActive(true);
     }
-
+    
     public void AlimentosToTipos(int i)
     {
         Alimentos.SetActive(false);
@@ -304,6 +299,7 @@ public class MenuAlimentos : MonoBehaviour
     {
         MenuTiposAlimento.SetActive(true);
         AlimentoSeleccionado.SetActive(false);
+        this.warngA.text = "";
     }
     public void TiposToAlimentos()
     {
@@ -317,28 +313,37 @@ public class MenuAlimentos : MonoBehaviour
     }
     public void AlimentosTOMain()
     {
+        this.warningListText.text = "";
         controlador.AlimentoToMain();
     }
     public void AlimentosTOAlmMain()
     {
         menuPrincipal.SetActive(true);
         Alimentos.SetActive(false);
+        this.warningListText.text = "";
     }
 
-    public void BotonFav()
+    public void BotonAct()
     {
         if (this.controlador.aUser == null)
         {
             warngA.text = "Tienes que estar logeado";
         }
-        else this.auth.AddListasF(this.Texto.text);
-    }
-    public void BotonAct()
-    {
-        if(this.controlador.aUser == null)
+        else
         {
-            warngA.text = "Tienes que estar logeado";
-        } else this.auth.AddListasA(this.Texto.text);
+
+            this.auth.AddListasA(this.Texto.text);
+        }
+    }
+    public void BotonRev()
+    {
+        if (!this.actR)
+        {
+            int A = this.selecc - 1;
+            this.auth.RevLista(A.ToString());
+            this.actR = true;
+        }
+        
     }
 
     public void AlmentosLista()
@@ -388,24 +393,6 @@ public class MenuAlimentos : MonoBehaviour
             p++;
         }
     }
-    public void PreparacionListasFav()
-    {
-        MenuFav.SetActive(true);
-        int length = this.ListaFav.Length;
-        int p = 1;
-        for (int a = 0; a < length; a++)
-        {
-            GameObject myButton = Instantiate(PrefabBotonAlimento,
-                botonColocacionA.transform.position, botonColocacionA.transform.rotation) as GameObject;
-            myButton.transform.SetParent(botonColocacionA.transform);
-            string[] sep = ListaFav[a].Split('.');
-            myButton.GetComponentInChildren<Text>().text = p     + "." + sep[0];
-            myButton.GetComponent<Button>().onClick.AddListener(delegate ()
-            { FavsActToSeleccion(myButton.GetComponentInChildren<Text>()); });
 
-            Botones.Add(myButton);
-            p++;
-        }
-    }
 
 }

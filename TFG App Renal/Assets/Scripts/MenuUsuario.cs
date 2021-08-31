@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.IO;
+using System;
 
 public class MenuUsuario : MonoBehaviour
 {
@@ -25,7 +27,7 @@ public class MenuUsuario : MonoBehaviour
     public Text uiLogUsuarioA;
     public Text uiLogCorreoA;
     public Text uiLogCuidadorA;
-    public InputField uiLogCuidadorN;
+    public InputField uiLogContraseñaN;
     public InputField uiLogUsuarioN;
     public InputField uiLogCorreoN;
     public Dropdown uiLogEstadoN;
@@ -49,8 +51,9 @@ public class MenuUsuario : MonoBehaviour
     [Header("UI Datos Personales")]
     //UI datos personales
     public InputField uiNombre, uiCorreo, uiPasword, uiPasswordVerif, uiDia, uiMes, uiAno;
+    public TMP_Text warningLoginTextREG;
 
-    [Space]
+   [Space]
     [Header("UI Datos Medicos")]
     //UI Datos Medicos
     public Toggle uiHiper;
@@ -62,20 +65,15 @@ public class MenuUsuario : MonoBehaviour
 
     //variables sobre datos personales
     string userName, correo, psw,pswV, dia,mes,año, fechaNacimiento;
-    bool paciente;
 
     //Variabes sobre datos medicos
     bool Hipertension, Diabetes, Actividad;
     string Peso, Altura;
     int estadoDialisis;
 
-    TouchScreenKeyboard keyboard;
 
 
-    //Cambios de menu
-    public void OpenKeyboard() {
-        //keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default);
-    }
+
     void Update()
     {
         
@@ -96,6 +94,14 @@ public class MenuUsuario : MonoBehaviour
     public void Exit()
     {
 
+        this.auth.warningLoginText.text = "";
+        uiCorreoInicio.text = "";
+        uiPswInicio.text = "";
+        uiLogUsuarioA.text = "";
+        uiLogCorreoA.text = "";
+        uiLogCuidadorA.text = "";
+        uiLogPesoPlace.text = ""; 
+        uiLogAlturaPlace.text = "";
         controlador.UssertoMain();
         
     }
@@ -116,6 +122,14 @@ public class MenuUsuario : MonoBehaviour
     {
         //falta implementacion de firebase
         controlador.aUser.setCorreo(this.uiLogCorreoN.text);
+        this.auth.cambioCorreo(this.uiLogCorreoN.text);
+
+    }
+
+    public void cambioContraseña()
+    {
+        //falta implementacion de firebase
+        auth.cambioContraseña(this.uiLogContraseñaN.text);
 
     }
     public void cambioPeso()
@@ -160,7 +174,7 @@ public class MenuUsuario : MonoBehaviour
 
         this.uiLogUsuarioA.text = controlador.aUser.userName;
         this.uiLogCorreoA.text = controlador.aUser.correo;
-        this.uiLogCuidadorA.text = controlador.aUser.cuidador;
+        this.uiLogCuidadorA.text = "Nueva contraseña";
         this.uiLogPesoPlace.text = controlador.aUser.Peso;
         this.uiLogEstadoN.value = controlador.aUser.dialisis;
         this.uiLogAlturaPlace.text = controlador.aUser.Altura;
@@ -177,6 +191,9 @@ public class MenuUsuario : MonoBehaviour
         this.auth.LogOut();
         alredyLog.SetActive(false);
         toLogin.SetActive(true);
+        this.loggin.SetActive(true);
+        auth.emailLoginField.text = "";
+        auth.passwordLoginField.text = "";
         controlador.UssertoMain();
     }
 
@@ -184,12 +201,9 @@ public class MenuUsuario : MonoBehaviour
     //Iniciar Sesion
     public void Loggin()
     {
-
-        
         alredyLog.SetActive(true);
         toLogin.SetActive(false);
-        this.setCuenta(); //falta impementacion dataBase
-
+        this.setCuenta(); 
     }
 
     
@@ -206,6 +220,19 @@ public class MenuUsuario : MonoBehaviour
 
     }
 
+    public void BackRegst()
+    {
+        this.loggin.SetActive(true);
+        this.Registro.SetActive(false);
+        uiNombre.text ="";
+        uiCorreo.text = "";
+        uiPasword.text = "";
+        uiPasswordVerif.text = "";
+        uiDia.text = "";
+        uiMes.text = "";
+        uiAno.text = "";
+    }
+
     public void NextRegister()
     {
         userName=uiNombre.text;
@@ -216,8 +243,84 @@ public class MenuUsuario : MonoBehaviour
         mes = uiMes.text;
         año = uiAno.text;
         fechaNacimiento = dia + "/" + mes + "/" + año;
-        this.register1.SetActive(false);
+        bool next = true;
+        if (uiNombre.text == "")
+        {
+            next = false;
+            this.warningLoginTextREG.text = "Falta nombre";
+            return;
+        }
+        else if (uiCorreo.text == "")
+        {
+            next = false;
+            this.warningLoginTextREG.text = "Falta correo";
+            return;
+        }
+        else if(uiPasword.text == "")
+        {
+            next = false;
+            this.warningLoginTextREG.text = "Falta contraseña";
+            return;
+        }
+        else if(uiPasswordVerif.text == "")
+        {
+            next = false;
+            this.warningLoginTextREG.text = "Falta repite la contraseña";
+            return;
+        }
+        else if (uiPasswordVerif.text.CompareTo(uiPasword.text) !=0)
+        {
+            next = false;
+            this.warningLoginTextREG.text = "Las contrseñas no coincden";
+            return;
+        }
+        if (uiPasswordVerif.text.Length<5)
+        {
+            next = false;
+            this.warningLoginTextREG.text = "La contrseña tiene que ser mayor a 6 letras";
+            return;
+        }
+
+        dia = uiDia.text;
+        mes = uiMes.text;
+        año = uiAno.text;
+        int d =-1;
+        int m =-1;
+        int a =-1;
+        try {
+            d = int.Parse(dia);
+            m = int.Parse(mes);
+            a = int.Parse(año);
+        }
+        catch (FormatException e){       }
+       
+        
+        if ((d<0||d>32) || (m<1||m>12) || (a<1970||a>2020))
+        {
+            next = false;
+            this.warningLoginTextREG.text = "La fecha esta mal puesta";
+            return;
+        }
+
+
+        if (next)
+        {
+            this.register1.SetActive(false);
+            this.register2.SetActive(true);
+            this.warningLoginTextREG.text = "";
+        }
+    }
+
+    public void BackRegst2()
+    {
+        this.register1.SetActive(true);
+        this.register2.SetActive(false);
+    }
+
+    public void BackRegst3()
+    {
         this.register2.SetActive(true);
+        this.testInicial.SetActive(false);
     }
 
     public void Next2Register()
@@ -228,8 +331,34 @@ public class MenuUsuario : MonoBehaviour
         this.Diabetes = uiDiabetes.isOn;
         this.Actividad = uiActividad.isOn;
         this.estadoDialisis = this.Dialisis.value;
-        this.register2.SetActive(false);
-        this.testInicial.SetActive(true);
+        bool next = true;
+
+        int p = -1;
+        int a = -1;
+        try
+        {
+            p = int.Parse(Peso);
+            a = int.Parse(Altura);
+        }
+        catch (IOException e) { }
+
+
+        if (p < 0 || p > 200)
+        {
+            next = false;
+            this.warningLoginTextREG.text = "El peso es incorrecto";
+        }
+        if (a < 0 || a > 250)
+        {
+            next = false;
+            this.warningLoginTextREG.text = "La altura es incorrecta";
+        }
+
+        if (next)
+        {
+            this.register2.SetActive(false);
+            this.testInicial.SetActive(true);
+        }
     }
     public void Register()
     {
@@ -246,7 +375,7 @@ public class MenuUsuario : MonoBehaviour
     {
         
         controlador.aUser = new ActualUser(userName, correo, fechaNacimiento, Hipertension,
-                                 Diabetes, Actividad, Peso, Altura, estadoDialisis,0,0);
+                                 Diabetes, Actividad, Peso, Altura, estadoDialisis,0);
         int e=this.ui_EstadoInicial.value;
         switch (e)
         {
@@ -266,7 +395,7 @@ public class MenuUsuario : MonoBehaviour
             Hipertension,Diabetes,Actividad,fechaNacimiento, e);
         controlador.MostrarUsuario();
     }
-
+    
 
 
 

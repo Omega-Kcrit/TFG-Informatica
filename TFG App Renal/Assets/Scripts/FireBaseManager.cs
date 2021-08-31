@@ -46,6 +46,7 @@ public class FireBaseManager : MonoBehaviour
     public Controlador CON;
     public MenuAlimentos mA;
 
+
     void Awake()
     {
         //Check that all of the necessary dependencies for Firebase are present on the system
@@ -105,9 +106,8 @@ public class FireBaseManager : MonoBehaviour
     {
         //Call the login coroutine passing the email and password
         //emailLoginField.text
-        //if(!(emailLoginField.text==""|| passwordLoginField.text == "")){ 
+        
         StartCoroutine(Login(emailLoginField.text, passwordLoginField.text));
-        StartCoroutine(LoadUserData());
         
     }
     //Function for the register button
@@ -135,36 +135,36 @@ public class FireBaseManager : MonoBehaviour
             FirebaseException firebaseEx = LoginTask.Exception.GetBaseException() as FirebaseException;
             AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
 
-            string message = "Login Failed!";
+            string message = "Fallo al inicar!";
             switch (errorCode)
             {
                 case AuthError.MissingEmail:
-                    message = "Missing Email";
+                    message = "Falta el Correo";
                     break;
                 case AuthError.MissingPassword:
-                    message = "Missing Password";
+                    message = "Falta la contraseña";
                     break;
                 case AuthError.WrongPassword:
-                    message = "Wrong Password";
+                    message = "Contraseña incorrecta";
                     break;
                 case AuthError.InvalidEmail:
-                    message = "Invalid Email";
+                    message = "Correo invalido";
                     break;
                 case AuthError.UserNotFound:
-                    message = "Account does not exist";
+                    message = "La cuenta no existe";
                     break;
             }
             warningLoginText.text = message;
         }
         else
         {
-            //User is now logged in
+            //User is now logged n
             //Now get the result
             User = LoginTask.Result;
             Debug.LogFormat("User signed in successfully: {0} ({1})", User.DisplayName, User.Email);
             StartCoroutine(LoadUserData());
             warningLoginText.text = "";
-            confirmLoginText.text = "Logged In";
+            //confirmLoginText.text = "Logged In";
         }
     }
 
@@ -173,12 +173,12 @@ public class FireBaseManager : MonoBehaviour
         if (_username == "")
         {
             //If the username field is blank show a warning
-            warningRegisterText.text = "Missing Username";
+            warningRegisterText.text = "Falta el nombre";
         }
         else if (passwordRegisterField != passwordRegisterVerifyField)
         {
             //If the password does not match show a warning
-            warningRegisterText.text = "Password Does Not Match!";
+            warningRegisterText.text = "Las contrseñas no coincden!";
         }
         else
         {
@@ -194,24 +194,27 @@ public class FireBaseManager : MonoBehaviour
                 FirebaseException firebaseEx = RegisterTask.Exception.GetBaseException() as FirebaseException;
                 AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
 
-                string message = "Register Failed!";
+                string message = "Registero Erroneo!";
                 switch (errorCode)
                 {
                     case AuthError.MissingEmail:
-                        message = "Missing Email";
+                        message = "Falta el Correo";
                         break;
                     case AuthError.MissingPassword:
-                        message = "Missing Password";
+                        message = "Falta la contraseña";
                         break;
                     case AuthError.WeakPassword:
-                        message = "Weak Password";
+                        message = "Contraseña debil";
                         break;
                     case AuthError.EmailAlreadyInUse:
-                        message = "Email Already In Use";
+                        message = "El correo ya esta en uso";
+                        break;
+                    case AuthError.InvalidEmail:
+                        message = "El correo no es valido";
                         break;
                 }
                 warningRegisterText.text = message;
-                menuUser.NowRegister();
+                menuUser.BackRegst3();
             }
             else
             {
@@ -276,7 +279,6 @@ public class FireBaseManager : MonoBehaviour
         StartCoroutine(ActualizarCorreoDatabase(correo));
         StartCoroutine(ActualizarEstadoIDatabase(estadoInicial));
         StartCoroutine(ActualizarlAct(0));
-        StartCoroutine(ActualizarlFav(0));
     }
 
 
@@ -321,6 +323,15 @@ public class FireBaseManager : MonoBehaviour
         StartCoroutine(ActualizarPuntuacionFDatabase(punt));
     }
 
+    public void cambioCorreo(string _correo)
+    {
+        StartCoroutine(ActualizarCorreoDatabase( _correo));
+    }
+
+    public void cambioContraseña(string _contraseña)
+    {
+        StartCoroutine(ActualizarContraseñaDatabase(_contraseña));
+    }
     public void loadComida(int tipo)
     {
         StartCoroutine(LoadFoodData(tipo));
@@ -335,21 +346,17 @@ public class FireBaseManager : MonoBehaviour
 
     }
 
-    public void AddListasF(string tipo)
-    {
-        StartCoroutine(AddAlimentoFav(tipo));
-        this.CON.aUser.lFav++;
-        StartCoroutine(ActualizarlFav(this.CON.aUser.lFav));
-    }
-
-    public void LoadListasFav()
-    {
-        StartCoroutine(LoadListasF());
-    }
     public void LoadListasAct()
     {
        
         StartCoroutine(LoadListasA());
+    }
+
+    public void RevLista(string Alimetno)
+    {
+        StartCoroutine(RemoveAlimetoAtc(Alimetno));
+        cambioPuntuacion(this.CON.aUser.puntuacion+50);
+        StartCoroutine(ActualizarlAct(this.CON.aUser.lAct));
     }
 
     public void LoadPerfil(string p)
@@ -398,7 +405,6 @@ public class FireBaseManager : MonoBehaviour
             string SCorreo = snapshot.Child("correo").Value.ToString();
             string SPunt = snapshot.Child("Puntuacion").Value.ToString();
             int lact = int.Parse( snapshot.Child("ListaA").Value.ToString());
-            int lfav = int.Parse(snapshot.Child("ListaF").Value.ToString());
 
             bool diabetes=false;
             int dialisis=0;
@@ -425,7 +431,7 @@ public class FireBaseManager : MonoBehaviour
 
             }
             CON.aUser = 
-                new ActualUser(username,SCorreo, fechaNac, Hipertension, diabetes, Actividad, Peso, Altura, dialisis,lact,lfav);
+                new ActualUser(username,SCorreo, fechaNac, Hipertension, diabetes, Actividad, Peso, Altura, dialisis,lact);
             CON.aUser.puntuacion = int.Parse(SPunt);
             CON.aUser.ToString();
             menuUser.Loggin();
@@ -620,43 +626,7 @@ public class FireBaseManager : MonoBehaviour
         }
     }
 
-    private IEnumerator LoadListasF()
-    {
-        var DBTask1 = DBreference.Child("Listas").Child(User.UserId).Child("ListaF").GetValueAsync();
-        yield return new WaitUntil(predicate: () => DBTask1.IsCompleted);
-        if (DBTask1.Exception != null)
-        {
-            //If there are errors handle them
-            Debug.LogWarning(message: $"Failed to load task with {DBTask1.Exception}");
-
-            string message = "Login Failed!";
-
-            warningLoginText.text = message;
-        }
-        else if (DBTask1.Result.Value == null)
-        {
-            //NODATA
-            Debug.LogWarning(message: $"Failed find data");
-
-        }
-        else
-        {
-            DataSnapshot snapshot = DBTask1.Result;
-            long i = snapshot.ChildrenCount;
-
-            string[] ListAlimentosAC = new string[i];
-            int p = 1;
-            for (int s = 0; s < i; s++)
-            {
-                ListAlimentosAC[s] = snapshot.Child(p.ToString()).Value.ToString();
-                p++;
-            }
-            this.mA.ListaFav = ListAlimentosAC;
-            this.mA.PreparacionListasFav();
-        }
-
-        yield return new WaitUntil(predicate: () => DBTask1.IsCompleted);
-    }
+    
 
     private IEnumerator LoadListasA()
     {
@@ -700,8 +670,8 @@ public class FireBaseManager : MonoBehaviour
         
     }
 
-
-
+    // CAMBIO DE DATOS DE INICIO SESION
+ 
 
     //ACTUALizar DATOS
     private IEnumerator ActualizarUsernameDatabase( string _username)
@@ -717,6 +687,7 @@ public class FireBaseManager : MonoBehaviour
         else
         {
             //Database username is now updated
+            
         }
     }
 
@@ -767,7 +738,7 @@ public class FireBaseManager : MonoBehaviour
             //Database username is now updated
         }
     }
-
+    
     private IEnumerator ActualizarHiperDatabase(bool _hiper)
     {
         var DBTask = DBreference.Child("users").Child(User.UserId).Child("Hipertension").SetValueAsync(_hiper);
@@ -861,6 +832,24 @@ public class FireBaseManager : MonoBehaviour
         else
         {
             //Database username is now updated
+            this.User.UpdateEmailAsync(_correo);
+        }
+    }
+
+    private IEnumerator ActualizarContraseñaDatabase(string _costraseña)
+    {
+        var DBTask = DBreference.Child("users").Child(User.UserId).Child("correo").GetValueAsync();
+
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
+        }
+        else
+        {
+            //Database username is now updated
+            this.User.UpdatePasswordAsync(_costraseña);
         }
     }
 
@@ -896,41 +885,6 @@ public class FireBaseManager : MonoBehaviour
         }
     }
 
-    private IEnumerator ActualizarlFav(int _lfav)
-    {
-        var DBTask = DBreference.Child("users").Child(User.UserId).Child("ListaF").SetValueAsync(_lfav);
-
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-
-        if (DBTask.Exception != null)
-        {
-            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
-        }
-        else
-        {
-            //Database username is now updated
-        }
-    }
-
-    private IEnumerator AddAlimentoFav(string Alimento)
-    {
-        
-        
-        var DBTask = DBreference.Child("Listas").Child(User.UserId).Child("ListaFav")
-            .Child(this.CON.aUser.lFav.ToString()).SetValueAsync(Alimento);
-        
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-
-        if (DBTask.Exception != null)
-        {
-            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
-        }
-        else
-        {
-            //Database is now updated
-        }
-    }
-
     private IEnumerator AddAlimentoAct(string Alimento)
     {
 
@@ -949,8 +903,26 @@ public class FireBaseManager : MonoBehaviour
         }
     }
 
+    private IEnumerator RemoveAlimetoAtc(string Alimento)
+    {
+        
+        Debug.Log(Alimento);
+        
+        var DBTask = DBreference.Child("Listas").Child(User.UserId).Child("ListaA")
+           .Child(Alimento).SetValueAsync(null);
 
-    // CARGAR DATOS
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
+        }
+        else
+        {
+            //Database is now updated
+            this.CON.aUser.lAct--;
+        }
+    }
    
 
     void OnDestroy()
